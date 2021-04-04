@@ -46,7 +46,6 @@ test(`converts unix-style existing env variable and non-existing with default`, 
   expect(commandConvert('${test1:3} ${non_existing:4} ${test2:5} ${what:6}', env)).toBe('${test1} 4 ${test2} 6')
 })
 
-
 test(`converts unix-style existing env variable usage ignoring default to windows style`, () => {
   isWindowsMock.mockReturnValue(true)
   expect(commandConvert('${test1:4}', env)).toBe('%test1%')

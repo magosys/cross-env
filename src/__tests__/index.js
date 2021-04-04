@@ -84,6 +84,37 @@ test(`handles quoted scripts`, () => {
   )
 })
 
+test(`handles default value`, () => {
+  process.env['TEST123'] = 'abc';
+  crossEnv(['PORT=${TEST123:3001}', 'start $PORT'], {
+    shell: true,
+  })
+  expect(crossSpawnMock.spawn).toHaveBeenCalledWith(
+      'start $PORT',
+      [],
+      {
+        stdio: 'inherit',
+        shell: true,
+        env: {...process.env, PORT: 'abc'},
+      },
+  )
+})
+
+test(`handles default value`, () => {
+  crossEnv(['PORT=${MASS_PORT:3001}', 'start $PORT'], {
+    shell: true,
+  })
+  expect(crossSpawnMock.spawn).toHaveBeenCalledWith(
+      'start $PORT',
+      [],
+      {
+        stdio: 'inherit',
+        shell: true,
+        env: {...process.env, PORT: '3001'},
+      },
+  )
+})
+
 test(`handles escaped characters`, () => {
   // this escapes \,",' and $
   crossEnv(

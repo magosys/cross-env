@@ -42,13 +42,21 @@ function replaceListDelimiters(varValue, varName = '') {
  * @returns {String} Converted value
  */
 function resolveEnvVars(varValue) {
-  const envUnixRegex = /(\\*)(\$(\w+)|\${(\w+)})/g // $my_var or ${my_var} or \$my_var
+  const envUnixRegex = /(\\*)(\$(\w+)|\${(\w+(?::[^}]+)?)})/g // $my_var or ${my_var} or \$my_var
   return varValue.replace(
     envUnixRegex,
     (_, escapeChars, varNameWithDollarSign, varName, altVarName) => {
       // do not replace things preceded by a odd number of \
       if (escapeChars.length % 2 === 1) {
         return varNameWithDollarSign
+      }
+      if (altVarName && altVarName.includes(':')) {
+        const alternatives = altVarName.split(':');
+        if (process.env[alternatives[0]]) {
+          return process.env[alternatives[0]];
+        } else {
+          return alternatives[1];
+        }
       }
       return (
         escapeChars.substr(0, escapeChars.length / 2) +
