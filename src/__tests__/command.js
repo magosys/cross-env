@@ -21,6 +21,37 @@ test(`converts unix-style env variable usage for windows`, () => {
   expect(commandConvert('$test', env)).toBe('%test%')
 })
 
+test(`converts unix-style non-existing env variable usage for windows`, () => {
+  isWindowsMock.mockReturnValue(true)
+  expect(commandConvert('${not_here}', env)).toBe('')
+})
+
+test(`converts unix-style non-existing env variable usage to default`, () => {
+  isWindowsMock.mockReturnValue(true)
+  expect(commandConvert('${not_here:4}', env)).toBe('4')
+})
+
+test(`converts unix-style existing env variable usage ignoring default`, () => {
+  isWindowsMock.mockReturnValue(false)
+  expect(commandConvert('${test1:4}', env)).toBe('${test1}')
+})
+
+test(`converts unix-style existing env variable and non-existing with default to windows`, () => {
+  isWindowsMock.mockReturnValue(true)
+  expect(commandConvert('${test1:3} ${non_existing:4} ${test2:5} ${what:6}', env)).toBe('%test1% 4 %test2% 6')
+})
+
+test(`converts unix-style existing env variable and non-existing with default`, () => {
+  isWindowsMock.mockReturnValue(false)
+  expect(commandConvert('${test1:3} ${non_existing:4} ${test2:5} ${what:6}', env)).toBe('${test1} 4 ${test2} 6')
+})
+
+
+test(`converts unix-style existing env variable usage ignoring default to windows style`, () => {
+  isWindowsMock.mockReturnValue(true)
+  expect(commandConvert('${test1:4}', env)).toBe('%test1%')
+})
+
 test(`leaves command unchanged when not a variable`, () => {
   expect(commandConvert('test', env)).toBe('test')
 })
